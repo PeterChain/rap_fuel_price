@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZRAP_PRICE</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Fuel price messages</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>&amp;1 &amp;2 &amp;3 &amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Error in creating the connection</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Error in fetchng content</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Error in parsing content</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>Error in generating GUID</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>&amp;1 entries of &amp;2 updated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZRAP_PRICE</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>No changes for &amp;1</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
