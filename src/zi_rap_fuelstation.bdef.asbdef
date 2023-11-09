@@ -1,0 +1,54 @@
+managed implementation in class zbp_i_rap_fuelstation unique;
+strict ( 2 );
+
+define behavior for ZI_RAP_FuelStation alias FuelStation
+persistent table ztstation
+lock master
+authorization master ( instance )
+etag master LastChangedAt
+{
+  create;
+  update;
+  delete;
+  association _Prices { create; }
+
+  field ( readonly, numbering : managed ) StationUuid;
+
+  mapping for ztstation
+    {
+      StationUuid = station_uuid;
+      BrandUuid   = brand_uuid;
+      StationType = station_type;
+      StationName = station_name;
+      StationId   = station_id;
+      District = district;
+      Municipality = municipality;
+      Address = address;
+      PostCode = post_code;
+      Geolat = geolat;
+      Geolon = geolon;
+    }
+}
+
+
+define behavior for ZI_RAP_FuelPrice alias FuelPrice
+persistent table ztfuel_price
+lock dependent by _Station
+authorization dependent by _Station
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) StationUuid;
+  field ( readonly, numbering:managed ) PriceUuid;
+  association _Station;
+
+  mapping for ztfuel_price
+  {
+    StationUuid = station_uuid;
+    PriceUuid = price_uuid;
+    FuelType = fuel_type;
+    Price = price;
+    UpdateDate = update_date;
+  }
+}

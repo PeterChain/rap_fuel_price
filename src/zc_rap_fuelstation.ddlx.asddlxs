@@ -1,0 +1,46 @@
+@Metadata.layer: #CORE
+annotate view ZC_RAP_FuelStation with
+{
+  @UI.lineItem: [{ position: 10 }]
+  @UI.fieldGroup: [{ qualifier: 'Identification', position: 10 }]
+  StationId;
+  @UI.lineItem: [{ position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'Identification', position: 20 }]
+  StationName;
+  @UI.fieldGroup: [{ qualifier: 'General', position: 10 }]
+  BrandUuid;
+  @UI.lineItem: [{ position: 30 }]
+  @UI.fieldGroup: [{ qualifier: 'Identification', position: 20 }]
+  BrandName;
+  @UI.fieldGroup: [{ qualifier: 'General', position: 20 }]
+  StationType;
+  @UI.fieldGroup: [{ qualifier: 'General', position: 30 }]
+  StationTypeName;
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 10 }]
+  Municipality;
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 20 }]
+  District;
+  @UI.lineItem: [{ position: 40 }]
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 30, type: #AS_ADDRESS }]
+  Address;
+  @UI.lineItem: [{ position: 50 }]
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 40, type: #AS_ADDRESS }]
+  City;
+  @UI.lineItem: [{ position: 50 }]
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 40, type: #AS_ADDRESS }]
+  PostCode;
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 50 }]
+  Geolon;
+  @UI.fieldGroup: [{ qualifier: 'Address', position: 60 }]
+  Geolat;
+  @UI.fieldGroup: [{ qualifier: 'Administration', position: 10 }]
+  LocalCreatedBy;
+  @UI.fieldGroup: [{ qualifier: 'Administration', position: 20 }]
+  LocalCreatedAt;
+  @UI.fieldGroup: [{ qualifier: 'Administration', position: 30 }]
+  LocalLastChangedBy;
+  @UI.fieldGroup: [{ qualifier: 'Administration', position: 40 }]
+  LocalLastChangedAt;
+  @UI.identification: [{ hidden: true }]
+  LastChangedAt;
+}

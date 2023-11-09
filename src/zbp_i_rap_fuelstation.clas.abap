@@ -1,0 +1,5 @@
+CLASS zbp_i_rap_fuelstation DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zi_rap_fuelstation.
+ENDCLASS.
+
+CLASS zbp_i_rap_fuelstation IMPLEMENTATION.
+ENDCLASS.

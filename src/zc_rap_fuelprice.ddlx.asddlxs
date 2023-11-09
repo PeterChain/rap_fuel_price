@@ -1,0 +1,17 @@
+@Metadata.layer: #CORE
+annotate view ZC_RAP_FuelPrice with
+{
+  @UI.lineItem: [{ type: #FOR_ACTION, dataAction: 'updatePrice', label:'Update prices' }]
+  PriceUuid;
+  @UI.identification: [{ position: 20 }]
+  FuelType;
+  @UI.lineItem: [{ position: 10 }]
+  @UI.identification: [{ position: 20 }]
+  UpdateDate;
+  @UI.lineItem: [{ position: 30 }]
+  @UI.identification: [{ position: 30 }]
+  Price;
+  @UI.lineItem: [{ position: 20 }]
+  @UI.identification: [{ position: 40 }]
+  FuelTypeName;
+}

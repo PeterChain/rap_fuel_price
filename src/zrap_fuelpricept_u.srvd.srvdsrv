@@ -1,0 +1,5 @@
+@EndUserText.label: 'UI Service: Fuel Price'
+define service ZRAP_FuelPricePT_U {
+  expose ZC_RAP_FuelStation as FuelStation;
+  expose ZC_RAP_FuelPrice   as FuelPrice;
+}

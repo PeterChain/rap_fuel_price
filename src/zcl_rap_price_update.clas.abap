@@ -28,7 +28,7 @@ CLASS zcl_rap_price_update DEFINITION
              preco            TYPE string,
              marca            TYPE string,
              combustivel      TYPE string,
-             data_atualizazao TYPE string,
+             data_atualizacao TYPE string,
              distrito         TYPE string,
              morada           TYPE string,
              localidade       TYPE string,
@@ -134,6 +134,26 @@ CLASS zcl_rap_price_update DEFINITION
       RAISING
         zcx_rap_price_error.
 
+    "! <p class="shorttext synchronized" lang="en">Converts string date into SAP date format</p>
+    "!
+    "! @parameter iv_date_str | <p class="shorttext synchronized" lang="en">String</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Date</p>
+    METHODS convert_date
+      IMPORTING
+        iv_date_str   TYPE string
+      RETURNING
+        VALUE(result) TYPE datum.
+
+    "! <p class="shorttext synchronized" lang="en">Converts price in string into SAP decimal format</p>
+    "!
+    "! @parameter iv_price_str | <p class="shorttext synchronized" lang="en">String</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Price</p>
+    METHODS convert_price
+      IMPORTING
+        iv_price_str  TYPE string
+      RETURNING
+        VALUE(result) TYPE zfuel_price.
+
 ENDCLASS.
 
 
@@ -142,6 +162,25 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
 
   METHOD if_oo_adt_classrun~main.
+    DATA(lt_msg) = VALUE symsg_tab( ).
+
+    delete from ztfuel_price where station_uuid is not initial.
+
+    TRY.
+        update_brands( CHANGING ct_msg = lt_msg ).
+        update_fuel_type( CHANGING ct_msg = lt_msg ).
+        update_station_type( CHANGING ct_msg = lt_msg ).
+        update_station_price( CHANGING ct_msg = lt_msg ).
+      CATCH zcx_rap_price_error INTO DATA(lo_error).
+        out->write( |Error: { lo_error->get_text( ) }| ).
+    ENDTRY.
+
+    LOOP AT lt_msg REFERENCE INTO DATA(lo_msg).
+      MESSAGE ID lo_msg->msgid TYPE lo_msg->msgty NUMBER lo_msg->msgno
+        WITH lo_msg->msgv1 lo_msg->msgv2 lo_msg->msgv3 lo_msg->msgv4
+        INTO DATA(lv_msg).
+      out->write( |Msg: { lv_msg }| ).
+    ENDLOOP.
   ENDMETHOD.
 
 
@@ -202,7 +241,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
     ENDLOOP.
 
     IF lt_brands IS NOT INITIAL.
-      INSERT ztbrand FROM TABLE @lt_brands.
+      MODIFY ztbrand FROM TABLE @lt_brands.
       IF sy-subrc IS INITIAL.
         APPEND VALUE #( msgty = 'S'
                         msgid = 'ZRAP_PRICE'
@@ -242,7 +281,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
     ENDLOOP.
 
     IF lt_ftype IS NOT INITIAL.
-      INSERT ztfuel_type FROM TABLE @lt_ftype.
+      MODIFY ztfuel_type FROM TABLE @lt_ftype.
       IF sy-subrc IS INITIAL.
         APPEND VALUE #( msgty = 'S'
                         msgid = 'ZRAP_PRICE'
@@ -282,7 +321,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
     ENDLOOP.
 
     IF lt_stype IS NOT INITIAL.
-      INSERT ztstation_type FROM TABLE @lt_stype.
+      MODIFY ztstation_type FROM TABLE @lt_stype.
       IF sy-subrc IS INITIAL.
         APPEND VALUE #( msgty = 'S'
                         msgid = 'ZRAP_PRICE'
@@ -315,40 +354,60 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
     LOOP AT ls_result-resultado ASSIGNING FIELD-SYMBOL(<fs_result>).
       IF NOT line_exists( lt_stations[ station_id = <fs_result>-id ] ).
-        DATA(ls_station) = VALUE ztstation(
-            station_uuid          = generate_uuid( )
-            station_id            = <fs_result>-id
-            station_name          = <fs_result>-nome
-            municipality          = <fs_result>-municipio
-            district              = <fs_result>-distrito
-            address               = <fs_result>-morada
-            city                  = <fs_result>-localidade
-            post_code             = <fs_result>-cod_postal
-            geolon                = <fs_result>-longitude
-            geolat                = <fs_result>-latitude  ).
+        DATA(ls_station) = VALUE ztstation( station_uuid  = generate_uuid( )
+                                            station_id    = <fs_result>-id
+                                            station_name  = <fs_result>-nome
+                                            municipality  = <fs_result>-municipio
+                                            district      = <fs_result>-distrito
+                                            address       = <fs_result>-morada
+                                            city          = <fs_result>-localidade
+                                            post_code     = <fs_result>-cod_postal
+                                            geolon        = <fs_result>-longitude
+                                            geolat        = <fs_result>-latitude  ).
 
         SELECT SINGLE station_type FROM ztstation_type
           WHERE station_type_name = @<fs_result>-tipo_posto
           INTO @ls_station-station_type.
 
-        select single brand_uuid from ztbrand
-          where brand_name = @<fs_result>-marca
-          into @ls_station-brand_uuid.
+        SELECT SINGLE brand_uuid FROM ztbrand
+          WHERE brand_name = @<fs_result>-marca
+          INTO @ls_station-brand_uuid.
 
         APPEND ls_station TO lt_stations.
 
-        data(ls_price) = value ztfuel_price(
-            station_uuid = ls_station-station_uuid
-            price_uuid   = generate_uuid( )
-*            fuel_type    =
-*            update_date  =
-*            price        =
-        ).
+        DATA(ls_price) = VALUE ztfuel_price( station_uuid = ls_station-station_uuid
+                                             price_uuid   = generate_uuid( )
+                                             update_date  = convert_date( <fs_result>-data_atualizacao )
+                                             price        = convert_price( <fs_result>-preco )  ).
+
+        SELECT SINGLE fuel_type_uuid FROM ztfuel_type
+          WHERE fuel_type_name = @<fs_result>-combustivel
+          INTO @ls_price-fuel_type.
+
+        APPEND ls_price TO lt_prices.
+
+      ELSE.
+        DATA(lv_station_uuid) = lt_stations[ station_id = <fs_result>-id ]-station_uuid.
+
+        SELECT SINGLE fuel_type_uuid FROM ztfuel_type
+          WHERE fuel_type_name = @<fs_result>-combustivel
+          INTO @DATA(lv_fuel_type).
+
+        IF NOT line_exists( lt_prices[ station_uuid = lv_station_uuid
+                                       fuel_type = lv_fuel_type ] ).
+          ls_price = VALUE ztfuel_price( station_uuid = lv_station_uuid
+                                         price_uuid   = generate_uuid( )
+                                         update_date  = convert_date( <fs_result>-data_atualizacao )
+                                         price        = convert_price( <fs_result>-preco )
+                                         fuel_type    = lv_fuel_type  ).
+
+          APPEND ls_price TO lt_prices.
+        ENDIF.
       ENDIF.
     ENDLOOP.
 
     IF lt_stations IS NOT INITIAL.
-      INSERT ztstation FROM TABLE @lt_stations.
+      MODIFY ztstation FROM TABLE @lt_stations.
       IF sy-subrc IS INITIAL.
         APPEND VALUE #( msgty = 'S'
                         msgid = 'ZRAP_PRICE'
@@ -365,7 +424,36 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
                     ) TO ct_msg.
     ENDIF.
 
+    IF lt_prices IS NOT INITIAL.
+      MODIFY ztfuel_price FROM TABLE @lt_prices.
+      IF sy-subrc IS INITIAL.
+        APPEND VALUE #( msgty = 'S'
+                        msgid = 'ZRAP_PRICE'
+                        msgno = 006
+                        msgv1 = lines( lt_prices )
+                        msgv2 = 'ZTFUEL_PRICE'
+                      ) TO ct_msg.
+      ENDIF.
+    ELSE.
+      APPEND VALUE #( msgty = 'S'
+                      msgid = 'ZRAP_PRICE'
+                      msgno = 007
+                      msgv1 = 'ZTFUEL_PRICE'
+                    ) TO ct_msg.
+    ENDIF.
+  ENDMETHOD.
 
+
+  METHOD convert_date.
+    result = |{ iv_date_str(4) }{ iv_date_str+5(2) }{ iv_date_str+8(2) }|.
+  ENDMETHOD.
+
+
+  METHOD convert_price.
+    DATA(lv_str) = replace( val = iv_price_str   sub = '€'   with = `` ).
+    lv_str = replace( val = lv_str   sub = ','   with = '.' ).
+    lv_str = condense( val = lv_str ).
+    result = lv_str.
   ENDMETHOD.
 
 ENDCLASS.
