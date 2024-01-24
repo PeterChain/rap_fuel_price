@@ -4,8 +4,6 @@
   <asx:values>
    <DEVC>
     <CTEXT>RAP: Fuel prices Portugal</CTEXT>
-    <COMP_POSID>AP-CME-DTY</COMP_POSID>
-    <COMPONENT>S6D0000008</COMPONENT>
    </DEVC>
   </asx:values>
  </asx:abap>

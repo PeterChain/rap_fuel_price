@@ -67,6 +67,9 @@ CLASS zcl_rap_price_update DEFINITION
     TYPES: ty_fueltype_t TYPE TABLE OF ztfuel_type WITH EMPTY KEY.
     TYPES: ty_station_t TYPE TABLE OF ztstation WITH EMPTY KEY.
     TYPES: ty_fuelprice_t TYPE TABLE OF ztfuel_price WITH EMPTY KEY.
+    TYPES: ty_prices_t TYPE TABLE OF ztfuel_price WITH EMPTY KEY.
+
+    TYPES: ty_numc2 TYPE n LENGTH 2.
 
   PROTECTED SECTION.
 
@@ -146,13 +149,27 @@ CLASS zcl_rap_price_update DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Converts price in string into SAP decimal format</p>
     "!
-    "! @parameter iv_price_str | <p class="shorttext synchronized" lang="en">String</p>
+    "! @parameter iv_price_str | <p class="shorttext synchronized" lang="en">Price string</p>
     "! @parameter result | <p class="shorttext synchronized" lang="en">Price</p>
     METHODS convert_price
       IMPORTING
         iv_price_str  TYPE string
       RETURNING
         VALUE(result) TYPE zfuel_price.
+
+    "! <p class="shorttext synchronized" lang="en">Returns the max sequential ID for a Station/Fuel type combo</p>
+    "!
+    "! @parameter iv_station_uuid | <p class="shorttext synchronized" lang="en">Fuel station UUID</p>
+    "! @parameter iv_fuel_type_uuid | <p class="shorttext synchronized" lang="en">Fuel type UUID</p>
+    "! @parameter it_prices | <p class="shorttext synchronized" lang="en">Price table</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Max seq ID for the Station/Fuel type combo</p>
+    METHODS get_max_id
+      IMPORTING
+        iv_station_uuid   TYPE sysuuid_x16
+        iv_fuel_type_uuid TYPE sysuuid_x16
+        it_prices         TYPE ty_prices_t
+      RETURNING
+        VALUE(result)     TYPE ty_numc2.
 
 ENDCLASS.
 
@@ -164,7 +181,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
     DATA(lt_msg) = VALUE symsg_tab( ).
 
-    delete from ztfuel_price where station_uuid is not initial.
+    DELETE FROM ztfuel_price WHERE station_uuid IS NOT INITIAL.
 
     TRY.
         update_brands( CHANGING ct_msg = lt_msg ).
@@ -342,6 +359,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
   METHOD update_station_price.
     DATA ls_result TYPE ty_json_prices.
+    DATA lv_upd_date TYPE datum.
 
     get_json_payload(
       EXPORTING
@@ -375,14 +393,17 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
         APPEND ls_station TO lt_stations.
 
-        DATA(ls_price) = VALUE ztfuel_price( station_uuid = ls_station-station_uuid
-                                             price_uuid   = generate_uuid( )
-                                             update_date  = convert_date( <fs_result>-data_atualizacao )
-                                             price        = convert_price( <fs_result>-preco )  ).
-
         SELECT SINGLE fuel_type_uuid FROM ztfuel_type
           WHERE fuel_type_name = @<fs_result>-combustivel
-          INTO @ls_price-fuel_type.
+          INTO @DATA(lv_fuel_type).
+
+        lv_upd_date = convert_date( <fs_result>-data_atualizacao ).
+        DATA(ls_price) = VALUE ztfuel_price( station_uuid = ls_station-station_uuid
+                                             price_uuid   = generate_uuid( )
+                                             fuel_type    = lv_fuel_type
+                                             price_id     = |{ lv_upd_date(4) }{ ls_station-station_id }01|
+                                             update_date  = lv_upd_date
+                                             price        = convert_price( <fs_result>-preco )  ).
 
         APPEND ls_price TO lt_prices.
 
@@ -391,13 +412,20 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
         SELECT SINGLE fuel_type_uuid FROM ztfuel_type
           WHERE fuel_type_name = @<fs_result>-combustivel
-          INTO @DATA(lv_fuel_type).
+          INTO @lv_fuel_type.
 
         IF NOT line_exists( lt_prices[ station_uuid = lv_station_uuid
                                        fuel_type = lv_fuel_type ] ).
+          DATA(lv_price_seq) = get_max_id( iv_station_uuid   = lv_station_uuid
+                                           iv_fuel_type_uuid = lv_fuel_type
+                                           it_prices         = lt_prices ).
+          lv_price_seq += 1.
+
+          lv_upd_date = convert_date( <fs_result>-data_atualizacao ).
           ls_price = VALUE ztfuel_price( station_uuid = lv_station_uuid
                                          price_uuid   = generate_uuid( )
-                                         update_date  = convert_date( <fs_result>-data_atualizacao )
+                                         price_id     = |{ lv_upd_date(4) }{ ls_station-station_id }{ lv_price_seq }|
+                                         update_date  = lv_upd_date
                                          price        = convert_price( <fs_result>-preco )
                                          fuel_type    = lv_fuel_type  ).
 
@@ -454,6 +482,23 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
     lv_str = replace( val = lv_str   sub = ','   with = '.' ).
     lv_str = condense( val = lv_str ).
     result = lv_str.
+  ENDMETHOD.
+
+
+  METHOD get_max_id.
+    DATA lt_seq   TYPE TABLE OF ty_numc2.
+
+    LOOP AT it_prices ASSIGNING FIELD-SYMBOL(<fs_price>)
+        WHERE station_uuid = iv_station_uuid
+          AND fuel_type = iv_fuel_type_uuid.
+      CHECK strlen( <fs_price>-price_id ) >= 2.
+      DATA(lv_seq) = substring( val = <fs_price>-price_id
+                                off = -2 ).
+      APPEND lv_seq TO lt_seq.
+    ENDLOOP.
+
+    SORT lt_seq BY table_line DESCENDING.
+    result = VALUE #( lt_seq[ 1 ] OPTIONAL ).
   ENDMETHOD.
 
 ENDCLASS.
