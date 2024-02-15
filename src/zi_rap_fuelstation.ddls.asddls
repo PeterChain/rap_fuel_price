@@ -3,13 +3,13 @@
 define root view entity ZI_RAP_FuelStation
   as select from ztstation
   composition [1..*] of ZI_RAP_FuelPrice as _Prices
-  association [1] to ZI_RAP_StationBrand as _Brand       on $projection.BrandUuid = _Brand.BrandUuid
-  association [1] to ZI_RAP_StationType  as _StationType on $projection.StationUuid = _StationType.StationType
+  association [1] to ZI_RAP_StationBrand as _Brand       on $projection.Brand = _Brand.BrandId
+  association [1] to ZI_RAP_StationType  as _StationType on $projection.StationType = _StationType.StationTypeId
 {
   key station_uuid          as StationUuid,
       station_id            as StationId,
       station_name          as StationName,
-      brand_uuid            as BrandUuid,
+      brand                 as Brand,
       station_type          as StationType,
       municipality          as Municipality,
       district              as District,

@@ -7,7 +7,7 @@ define view entity ZC_RAP_FuelPrice
   key StationUuid,
   key PriceUuid,
       PriceID,
-      //@Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_FuelType', element: 'FuelTypeId' } }]
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_FuelType', element: 'FuelTypeId' } }]
       FuelType,
       UpdateDate,
       Price,

@@ -160,13 +160,13 @@ CLASS zcl_rap_price_update DEFINITION
     "! <p class="shorttext synchronized" lang="en">Returns the max sequential ID for a Station/Fuel type combo</p>
     "!
     "! @parameter iv_station_uuid | <p class="shorttext synchronized" lang="en">Fuel station UUID</p>
-    "! @parameter iv_fuel_type_uuid | <p class="shorttext synchronized" lang="en">Fuel type UUID</p>
+    "! @parameter iv_fuel_type_id | <p class="shorttext synchronized" lang="en">Fuel type ID</p>
     "! @parameter it_prices | <p class="shorttext synchronized" lang="en">Price table</p>
     "! @parameter result | <p class="shorttext synchronized" lang="en">Max seq ID for the Station/Fuel type combo</p>
     METHODS get_max_id
       IMPORTING
         iv_station_uuid   TYPE sysuuid_x16
-        iv_fuel_type_uuid TYPE sysuuid_x16
+        iv_fuel_type_id   TYPE zfuel_type_id
         it_prices         TYPE ty_prices_t
       RETURNING
         VALUE(result)     TYPE ty_numc2.
@@ -250,8 +250,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
     LOOP AT ls_result-resultado ASSIGNING FIELD-SYMBOL(<fs_result>).
       IF NOT line_exists( lt_brands[ brand_id = <fs_result>-id ] ).
-        APPEND VALUE #( brand_uuid = generate_uuid( )
-                        brand_id = <fs_result>-id
+        APPEND VALUE #( brand_id = <fs_result>-id
                         brand_name = <fs_result>-descritivo
                       ) TO lt_brands.
       ENDIF.
@@ -290,8 +289,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
     LOOP AT ls_result-resultado ASSIGNING FIELD-SYMBOL(<fs_result>).
       IF NOT line_exists( lt_ftype[ fuel_type_id = <fs_result>-id ] ).
-        APPEND VALUE #( fuel_type_uuid = generate_uuid( )
-                        fuel_type_id = <fs_result>-id
+        APPEND VALUE #( fuel_type_id = <fs_result>-id
                         fuel_type_name = <fs_result>-descritivo
                       ) TO lt_ftype.
       ENDIF.
@@ -330,8 +328,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
     LOOP AT ls_result-resultado ASSIGNING FIELD-SYMBOL(<fs_result>).
       IF NOT line_exists( lt_stype[ station_type_id = <fs_result>-id ] ).
-        APPEND VALUE #( station_type = generate_uuid( )
-                        station_type_id = <fs_result>-id
+        APPEND VALUE #( station_type_id = <fs_result>-id
                         station_type_name = <fs_result>-descritivo
                       ) TO lt_stype.
       ENDIF.
@@ -383,17 +380,17 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
                                             geolon        = <fs_result>-longitude
                                             geolat        = <fs_result>-latitude  ).
 
-        SELECT SINGLE station_type FROM ztstation_type
+        SELECT SINGLE station_type_id FROM ztstation_type
           WHERE station_type_name = @<fs_result>-tipo_posto
           INTO @ls_station-station_type.
 
-        SELECT SINGLE brand_uuid FROM ztbrand
+        SELECT SINGLE brand_id FROM ztbrand
           WHERE brand_name = @<fs_result>-marca
-          INTO @ls_station-brand_uuid.
+          INTO @ls_station-brand.
 
         APPEND ls_station TO lt_stations.
 
-        SELECT SINGLE fuel_type_uuid FROM ztfuel_type
+        SELECT SINGLE fuel_type_id FROM ztfuel_type
           WHERE fuel_type_name = @<fs_result>-combustivel
           INTO @DATA(lv_fuel_type).
 
@@ -410,14 +407,14 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
       ELSE.
         DATA(lv_station_uuid) = lt_stations[ station_id = <fs_result>-id ]-station_uuid.
 
-        SELECT SINGLE fuel_type_uuid FROM ztfuel_type
+        SELECT SINGLE fuel_type_id FROM ztfuel_type
           WHERE fuel_type_name = @<fs_result>-combustivel
           INTO @lv_fuel_type.
 
         IF NOT line_exists( lt_prices[ station_uuid = lv_station_uuid
                                        fuel_type = lv_fuel_type ] ).
           DATA(lv_price_seq) = get_max_id( iv_station_uuid   = lv_station_uuid
-                                           iv_fuel_type_uuid = lv_fuel_type
+                                           iv_fuel_type_id   = lv_fuel_type
                                            it_prices         = lt_prices ).
           lv_price_seq += 1.
 
@@ -490,7 +487,7 @@ CLASS zcl_rap_price_update IMPLEMENTATION.
 
     LOOP AT it_prices ASSIGNING FIELD-SYMBOL(<fs_price>)
         WHERE station_uuid = iv_station_uuid
-          AND fuel_type = iv_fuel_type_uuid.
+          AND fuel_type = iv_fuel_type_id.
       CHECK strlen( <fs_price>-price_id ) >= 2.
       DATA(lv_seq) = substring( val = <fs_price>-price_id
                                 off = -2 ).

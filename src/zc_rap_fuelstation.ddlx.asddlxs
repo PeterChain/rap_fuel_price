@@ -1,45 +1,96 @@
 @Metadata.layer: #CORE
 annotate view ZC_RAP_FuelStation with
 {
+  @UI.facet: [
+  {
+    label: 'Identification',
+    type: #FIELDGROUP_REFERENCE,
+    purpose: #HEADER,
+    targetQualifier:'ID',
+    position: 10 
+  }, 
+  { 
+    label: 'General',
+    type: #FIELDGROUP_REFERENCE,
+    targetQualifier: 'GEN',
+    id: 'GEN',
+    position: 20 
+  }, 
+  { 
+    label: 'Address',
+    type: #COLLECTION,
+    targetQualifier: 'ADDR',
+    id: 'ADDR',
+    position: 30 
+  }, 
+  { 
+    label: 'Details',
+    parentId: 'ADDR',
+    type: #FIELDGROUP_REFERENCE,
+    targetQualifier: 'ADDR_DETAIL',
+    id: 'ADDR_DETAIL',
+    position: 10 
+  },
+  { 
+    label: 'Coordinates',
+    parentId: 'ADDR',
+    type: #FIELDGROUP_REFERENCE,
+    targetQualifier: 'ADDR_GEO',
+    id: 'ADDR_GEO',
+    position: 20 
+  },
+  { 
+    label: 'Administration',
+    type: #FIELDGROUP_REFERENCE,
+    targetQualifier: 'ADMIN',
+    id: 'ADMIN',
+    position: 40 
+  },
+  { 
+    label: 'Prices',
+    type: #LINEITEM_REFERENCE,
+    targetQualifier: 'PRICE',
+    targetElement: '_Prices',
+    id: 'PRICE',
+    position: 50 
+  }]
+  @UI.lineItem: [{ hidden: true }]
+  @UI.identification: [{ hidden: true }]
+  StationUuid;
   @UI.lineItem: [{ position: 10 }]
-  @UI.fieldGroup: [{ qualifier: 'Identification', position: 10 }]
+  @UI.fieldGroup: [{ qualifier: 'ID', position: 10 }]
   StationId;
   @UI.lineItem: [{ position: 20 }]
-  @UI.fieldGroup: [{ qualifier: 'Identification', position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'ID', position: 20 }]
   StationName;
-  @UI.fieldGroup: [{ qualifier: 'General', position: 10 }]
-  BrandUuid;
-  @UI.lineItem: [{ position: 30 }]
-  @UI.fieldGroup: [{ qualifier: 'Identification', position: 20 }]
-  BrandName;
-  @UI.fieldGroup: [{ qualifier: 'General', position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'GEN', position: 10 }]
+  Brand;
+  @UI.fieldGroup: [{ qualifier: 'GEN', position: 20 }]
   StationType;
-  @UI.fieldGroup: [{ qualifier: 'General', position: 30 }]
-  StationTypeName;
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 10 }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_DETAIL', position: 10 }]
   Municipality;
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_DETAIL', position: 20 }]
   District;
   @UI.lineItem: [{ position: 40 }]
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 30, type: #AS_ADDRESS }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_DETAIL', position: 30 }]
   Address;
   @UI.lineItem: [{ position: 50 }]
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 40, type: #AS_ADDRESS }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_DETAIL', position: 40 }]
   City;
   @UI.lineItem: [{ position: 50 }]
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 40, type: #AS_ADDRESS }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_DETAIL', position: 40 }]
   PostCode;
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 50 }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_GEO', position: 10 }]
   Geolon;
-  @UI.fieldGroup: [{ qualifier: 'Address', position: 60 }]
+  @UI.fieldGroup: [{ qualifier: 'ADDR_GEO', position: 20 }]
   Geolat;
-  @UI.fieldGroup: [{ qualifier: 'Administration', position: 10 }]
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 10 }]
   LocalCreatedBy;
-  @UI.fieldGroup: [{ qualifier: 'Administration', position: 20 }]
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 20 }]
   LocalCreatedAt;
-  @UI.fieldGroup: [{ qualifier: 'Administration', position: 30 }]
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 30 }]
   LocalLastChangedBy;
-  @UI.fieldGroup: [{ qualifier: 'Administration', position: 40 }]
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 40 }]
   LocalLastChangedAt;
   @UI.identification: [{ hidden: true }]
   LastChangedAt;

@@ -17,7 +17,7 @@ etag master LastChangedAt
   mapping for ztstation
     {
       StationUuid = station_uuid;
-      BrandUuid   = brand_uuid;
+      Brand   = brand;
       StationType = station_type;
       StationName = station_name;
       StationId   = station_id;

@@ -1,21 +1,36 @@
 @Metadata.layer: #CORE
 annotate view ZC_RAP_FuelPrice with
 {
+  @UI.facet: [
+    {
+      label: 'Identification',
+      type: #FIELDGROUP_REFERENCE,
+      purpose: #HEADER,
+      targetQualifier:'ID',
+      position: 10
+    },
+    {
+      label: 'Information',
+      type: #FIELDGROUP_REFERENCE,
+      targetQualifier: 'INF',
+      id: 'INF',
+      position: 20
+    }]
   @UI.lineItem: [{ type: #FOR_ACTION, dataAction: 'updatePrice', label:'Update prices', hidden: true }]
   @UI.identification: [{ hidden: true }]
   PriceUuid;
   @UI.lineItem: [{ position: 10 }]
-  @UI.identification: [{ position: 10 }]
+  @UI.identification: [{ position: 10, qualifier: 'ID' }]
   PriceID;
-  @UI.identification: [{ position: 20 }]
+  @UI.identification: [{ position: 10, qualifier: 'INF' }]
   FuelType;
   @UI.lineItem: [{ position: 10 }]
-  @UI.identification: [{ position: 20 }]
+  @UI.identification: [{ position: 20, qualifier: 'INF' }]
   UpdateDate;
   @UI.lineItem: [{ position: 30 }]
-  @UI.identification: [{ position: 30 }]
+  @UI.identification: [{ position: 30, qualifier: 'INF' }]
   Price;
   @UI.lineItem: [{ position: 20 }]
-  @UI.identification: [{ position: 40 }]
+  @UI.identification: [{ position: 40, qualifier: 'INF' }]
   FuelTypeName;
 }

@@ -9,8 +9,7 @@
 }
 define view entity ZI_RAP_StationType as select from ztstation_type
 {
-  key station_type as StationType,
-  station_type_id as StationTypeId,
+  key station_type_id as StationTypeId,
   @Semantics.text: true
   @Search.defaultSearchElement: true
   @Search.fuzzinessThreshold: 0.8

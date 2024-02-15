@@ -9,8 +9,7 @@
 }
 define view entity ZI_RAP_FuelType as select from ztfuel_type
 {
-  key fuel_type_uuid as FuelTypeUuid,
-  fuel_type_id as FuelTypeId,
+  key fuel_type_id as FuelTypeId,
   @Search.defaultSearchElement: true
   measure_unit as MeasureUnit,
   @Semantics.text: true

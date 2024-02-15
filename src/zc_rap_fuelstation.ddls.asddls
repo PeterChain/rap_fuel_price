@@ -9,12 +9,10 @@ define root view entity ZC_RAP_FuelStation
       @Search.defaultSearchElement: true
       StationName,
       @Search.defaultSearchElement: true
-      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_StationBrand', element: 'BrandUuid' } }]
-      BrandUuid,
-      _Brand.BrandName as BrandName,
-      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_StationType', element: 'StationType' } }]
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_StationBrand', element: 'BrandId' } }]
+      Brand,
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_RAP_StationType', element: 'StationTypeId' } }]
       StationType,
-      _StationType.StationTypeName as StationTypeName,
       @Search.defaultSearchElement: true
       Municipality,
       @Search.defaultSearchElement: true
